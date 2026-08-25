@@ -123,6 +123,9 @@ func formatUserLogs(logs []*Log, startIdx int) {
 			delete(otherMap, "admin_info")
 			// Remove operation-audit details (operator/route info), admin-only.
 			delete(otherMap, "audit_info")
+			// Hide upstream (actual) model from normal users.
+			delete(otherMap, "upstream_model_name")
+			delete(otherMap, "is_model_mapped")
 			// delete(otherMap, "reject_reason")
 			// delete(otherMap, "stream_status")
 		}
