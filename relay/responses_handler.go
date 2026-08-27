@@ -71,6 +71,11 @@ func ResponsesHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *
 		return types.NewError(err, types.ErrorCodeChannelModelMappedError, types.ErrOptionWithSkipRetry())
 	}
 
+	// 长上下文兜底压缩：仅 deepseek-v4-flash 路由到 ch21-23 时生效，避免超限请求撞上游上下文上限。
+	if ShouldCompressContext(info.ChannelId, info.OriginModelName) && len(request.Input) > 0 {
+		request.Input = CompressResponsesInput(request.Input)
+	}
+
 	adaptor := GetAdaptor(info.ApiType)
 	if adaptor == nil {
 		return types.NewError(fmt.Errorf("invalid api type: %d", info.ApiType), types.ErrorCodeInvalidApiType, types.ErrOptionWithSkipRetry())

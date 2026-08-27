@@ -44,6 +44,11 @@ func TextHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *types
 		return types.NewError(err, types.ErrorCodeChannelModelMappedError, types.ErrOptionWithSkipRetry())
 	}
 
+	// 长上下文兜底压缩：仅 deepseek-v4-flash 路由到 ch21-23 时生效，避免超限请求撞上游上下文上限。
+	if ShouldCompressContext(info.ChannelId, info.OriginModelName) && len(request.Messages) > 0 {
+		request.Messages = CompressChatMessages(request.Messages)
+	}
+
 	includeUsage := true
 	// 判断用户是否需要返回使用情况
 	if request.StreamOptions != nil {
