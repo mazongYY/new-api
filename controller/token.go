@@ -299,6 +299,14 @@ func AddToken(c *gin.Context) {
 		})
 		return
 	}
+	if token.Group == "" {
+		userGroup, err := model.GetUserGroup(c.GetInt("id"), false)
+		if err != nil || userGroup == "" {
+			token.Group = "default"
+		} else {
+			token.Group = userGroup
+		}
+	}
 	if token.Group == "auto" {
 		if !setTokenAutoGroups(c, &token, request.AutoGroups.Groups) {
 			return
